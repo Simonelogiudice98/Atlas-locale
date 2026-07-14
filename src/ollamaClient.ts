@@ -1,24 +1,35 @@
+import { RequestBody, ResponseBody } from "./interfaces/IChatInterface.js";
 
+const baseUrl = getEnvVar("OLLAMA_BASE_URL");
+const model = getEnvVar("OLLAMA_MODEL");
 
-// const response = await fetch("http://localhost:11434/api/chat", {
-//   method: "POST",
-//   headers: { "Content-Type": "application/json" },
-//   body: JSON.stringify({
-//     model: "qwen3:14b",
-//     messages: [
-//       {
-//         role: "user",
-//         content: "Ciao! Presentati brevemente in una frase.",
-//       },
-//     ],
-//     stream: false
-//   }),
-// });
+function getEnvVar(name: string): string {
+  const value = process.env[name];
+  if (value === undefined) {
+    throw new Error(`${name} non trovato`);
+  }
+  return value;
+}
 
-// import { promises } from "node:dns";
+export async function chat(prompt: string): Promise<string> {
+  const body: RequestBody = {
+    model,
+    messages: [
+      {
+        role: "user",
+        content: prompt,
+      },
+    ],
+    stream: false,
+  };
 
-// export {response};
+  const response = await fetch(baseUrl + "/api/chat", {
+    method:"POST",
+    headers:{ "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
 
-// export async function chat(prompt:string): Promise<string> {
-    
-// }
+  const res = await response.json() as ResponseBody;
+
+  return res.message.content;
+}

@@ -1,4 +1,4 @@
-import { RequestBody, ResponseBody } from "./interfaces/IChatInterface.js";
+import { AssistantMessage, ChatMessage, ChatTools, RequestBody, ResponseBody } from "./interfaces/IChatInterface.js";
 
 const baseUrl = getEnvVar("OLLAMA_BASE_URL");
 const model = getEnvVar("OLLAMA_MODEL");
@@ -11,16 +11,12 @@ function getEnvVar(name: string): string {
   return value;
 }
 
-export async function chat(prompt: string): Promise<string> {
+export async function chat(messages:ChatMessage[],tools?:ChatTools[]): Promise<AssistantMessage> {
   const body: RequestBody = {
     model,
-    messages: [
-      {
-        role: "user",
-        content: prompt,
-      },
-    ],
+    messages:messages,
     stream: false,
+    ...(tools && {tools})
   };
 
   const response = await fetch(baseUrl + "/api/chat", {
@@ -31,5 +27,5 @@ export async function chat(prompt: string): Promise<string> {
 
   const res = await response.json() as ResponseBody;
 
-  return res.message.content;
+  return res.message;
 }

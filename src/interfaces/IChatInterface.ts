@@ -1,9 +1,9 @@
-interface ChatMessage {
+export interface ChatMessage {
   role: string;
   content: string;
 }
 
-interface AssistantMessage extends ChatMessage {
+export interface AssistantMessage extends ChatMessage {
   tool_calls?: ToolCall[];
 }
 
@@ -16,21 +16,21 @@ interface ToolCallFunction {
   arguments:Record<string, unknown>;
 }
 
-interface Tools {
+export interface ChatTools {
   type: string;
   function: ToolsFunction;
 }
 
 interface ToolsFunction {
   name: string;
-  description: string;
+  description?: string;
   parameters: Params;
 }
 
 interface Params {
   type: string;
-  properties: Record<string, PropertySchema>;
-  required: string[];
+  properties?: Record<string, unknown>;
+  required?: string[];
 }
 interface PropertySchema {
   type: string;
@@ -40,7 +40,7 @@ interface PropertySchema {
 export interface RequestBody {
   model: string;
   messages: ChatMessage[];
-  tools?: Tools[];
+  tools?: ChatTools[];
   stream: boolean;
 }
 

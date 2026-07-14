@@ -1,5 +1,6 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import { CallToolResult, Tool } from "@modelcontextprotocol/sdk/types.js";
 
 const timeClient = new Client({
   name: "jarvis-time-client",
@@ -16,20 +17,18 @@ const transport = new StdioClientTransport({
   // args: ["dist/mcpServers/timeServer.js"],
 });
 
-async function main() {
+export async function connectTimeClient(): Promise<void> {
   await timeClient.connect(transport);
-  console.log("jarvis-time-client connesso al time server");
-
-  const toolsResult = await timeClient.listTools();
-  console.log(toolsResult.tools);
-
-  const result = await timeClient.callTool({
-    name:"get_time"
-  })
-  console.log(result.content);
 }
 
-main().catch((err) => {
-  console.error("Fatal error in main():", err);
-  process.exit(1);
-});
+export async function getTimeTools(): Promise<Tool[]> {
+  return (await timeClient.listTools()).tools;
+}
+
+export async function runTimeTools(name: string, args: Record<string, unknown>) {
+  return await timeClient.callTool({
+    name: name,
+    arguments:args
+  });
+}
+

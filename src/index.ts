@@ -36,6 +36,14 @@ async function main() {
         if (Array.isArray(result.content)) {
           const block = result.content[0];
           if (block.type === "text") {
+            console.log({
+              timestamp: new Date().toISOString(),
+              tool: tool.function.name,
+              args: tool.function.arguments,
+              result: block.text,
+              status: "OK",
+            });
+
             let el = {
               role: "tool",
               content: block.text,
@@ -45,6 +53,8 @@ async function main() {
           }
         }
       } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
         if (error instanceof Error) {
           console.log(
             `chiamata al tool ${tool.function.name} fallita: ${error.message}`,
@@ -52,6 +62,13 @@ async function main() {
         } else {
           console.log(`chiamata al tool ${tool.function.name} fallita:`, error);
         }
+        console.log({
+          timestamp: new Date().toISOString(),
+          tool: tool.function.name,
+          args: tool.function.arguments,
+          result: errorMessage,
+          status: "ERROR",
+        });
         return;
       }
     }

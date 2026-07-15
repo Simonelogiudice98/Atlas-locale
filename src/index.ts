@@ -1,4 +1,4 @@
-import { ChatMessage } from "./interfaces/IChatInterface.js";
+import { AssistantMessage, ChatMessage } from "./interfaces/IChatInterface.js";
 import {
   connectTimeClient,
   getTimeTools,
@@ -16,30 +16,54 @@ async function main() {
 
   const ollamaTools = convertToOllama(toolsList);
 
-  const res = await chat(messages, ollamaTools);
+  let res: AssistantMessage;
+  try {
+    res = await chat(messages, ollamaTools);
+  } catch (error) {
+    console.log("chiamata a Ollama fallita:", error);
+    return;
+  }
 
   let toolResultMessages: ChatMessage[] = [];
   if (res.tool_calls) {
     for (let tool of res.tool_calls) {
-      const result = await runTimeTools(
-        tool.function.name,
-        tool.function.arguments,
-      );
+      try {
+        const result = await runTimeTools(
+          tool.function.name,
+          tool.function.arguments,
+        );
 
-      if (Array.isArray(result.content)) {
-        const block = result.content[0];
-        if (block.type === "text") {
-          let el = {
-            role: "tool",
-            content: block.text,
-            name: tool.function.name,
-          };
-          toolResultMessages.push(el);
+        if (Array.isArray(result.content)) {
+          const block = result.content[0];
+          if (block.type === "text") {
+            let el = {
+              role: "tool",
+              content: block.text,
+              name: tool.function.name,
+            };
+            toolResultMessages.push(el);
+          }
         }
+      } catch (error) {
+        if (error instanceof Error) {
+          console.log(
+            `chiamata al tool ${tool.function.name} fallita: ${error.message}`,
+          );
+        } else {
+          console.log(`chiamata al tool ${tool.function.name} fallita:`, error);
+        }
+        return;
       }
     }
     const newMessagesArray = [...messages, res, ...toolResultMessages];
-    const response = await chat(newMessagesArray, ollamaTools);
+    let response: AssistantMessage;
+    try {
+      response = await chat(newMessagesArray, ollamaTools);
+    } catch (error) {
+      console.log("chiamata a Ollama fallita (tools):", error);
+      return;
+    }
+
     console.log(response.content);
   } else {
     console.log(res.content);

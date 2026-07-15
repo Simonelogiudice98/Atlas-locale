@@ -1,6 +1,7 @@
 export interface ChatMessage {
   role: string;
   content: string;
+  name?: string;
 }
 
 export interface AssistantMessage extends ChatMessage {

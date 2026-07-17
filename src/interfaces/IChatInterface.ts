@@ -1,8 +1,10 @@
 export interface ChatMessage {
-  role: string;
+  role:Role;
   content: string;
   name?: string;
 }
+
+type Role = "user" | "assistant" | "system" | "tool"
 
 export interface AssistantMessage extends ChatMessage {
   tool_calls?: ToolCall[];

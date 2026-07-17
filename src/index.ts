@@ -1,18 +1,21 @@
 import { AssistantMessage, ChatMessage } from "./interfaces/IChatInterface.js";
-import {
-  connectTimeClient,
-  getTimeTools,
-  runTimeTools,
-} from "./mcpClients/timeClient.js";
 import { convertToOllama } from "./mcpToOllamaAdapter.js";
 import { chat } from "./ollamaClient.js";
+import { buildToolMap, connectAllClients, getAllTools } from "./toolRouter.js";
 
 async function main() {
-  const messages: ChatMessage[] = [{ role: "user", content: "che ore sono?" }];
+  const messages: ChatMessage[] = [
+    {
+      role: "system",
+      content:
+        "Sei un assistente che risponde in italiano. Dopo aver ricevuto il risultato di uno strumento (tool), scrivi sempre la risposta finale in linguaggio naturale come output di risposta — non lasciarla solo nel tuo ragionamento interno.",
+    },
+    { role: "user", content: "che ore sono?" },
+  ];
 
-  await connectTimeClient();
-
-  const toolsList = await getTimeTools();
+  await connectAllClients();
+  const toolMap = await buildToolMap();
+  const toolsList = await getAllTools();
 
   const ollamaTools = convertToOllama(toolsList);
 
@@ -28,10 +31,9 @@ async function main() {
   if (res.tool_calls) {
     for (let tool of res.tool_calls) {
       try {
-        const result = await runTimeTools(
-          tool.function.name,
-          tool.function.arguments,
-        );
+        const runFn = toolMap[tool.function.name];
+        if (!runFn) throw new Error("Tool sconosciuto: " + tool.function.name);
+        const result = await runFn(tool.function.name, tool.function.arguments);
 
         if (Array.isArray(result.content)) {
           const block = result.content[0];
@@ -45,7 +47,7 @@ async function main() {
             });
 
             let el = {
-              role: "tool",
+              role: "tool" as const,
               content: block.text,
               name: tool.function.name,
             };

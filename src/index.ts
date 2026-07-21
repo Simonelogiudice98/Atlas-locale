@@ -1,23 +1,28 @@
+import { createInterface } from "readline/promises";
 import { AssistantMessage, ChatMessage } from "./interfaces/IChatInterface.js";
 import { convertToOllama } from "./mcpToOllamaAdapter.js";
 import { chat } from "./ollamaClient.js";
 import { buildToolMap, connectAllClients, getAllTools } from "./toolRouter.js";
 
 async function main() {
+  await connectAllClients();
+  const toolMap = await buildToolMap();
+  const toolsList = await getAllTools();
+
+  const ollamaTools = convertToOllama(toolsList);
+
+  const rl = createInterface({ input: process.stdin, output: process.stdout });
+  const userInput = await rl.question("Tu:")
+  rl.close();
+
   const messages: ChatMessage[] = [
     {
       role: "system",
       content:
         "Sei un assistente che risponde in italiano. Dopo aver ricevuto il risultato di uno strumento (tool), scrivi sempre la risposta finale in linguaggio naturale come output di risposta — non lasciarla solo nel tuo ragionamento interno.",
     },
-    { role: "user", content: "che ore sono?" },
+    { role: "user", content: userInput },
   ];
-
-  await connectAllClients();
-  const toolMap = await buildToolMap();
-  const toolsList = await getAllTools();
-
-  const ollamaTools = convertToOllama(toolsList);
 
   let res: AssistantMessage;
   try {

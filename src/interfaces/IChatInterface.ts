@@ -51,3 +51,9 @@ export interface ResponseBody {
   message: AssistantMessage;
   done: boolean;
 }
+
+export type Reminder = {
+  id:string;
+  content:string;
+  created_at:string;
+}

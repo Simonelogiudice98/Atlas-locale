@@ -2,7 +2,7 @@ import { createInterface } from "readline/promises";
 import { AssistantMessage, ChatMessage } from "./interfaces/IChatInterface.js";
 import { convertToOllama } from "./mcpToOllamaAdapter.js";
 import { chat } from "./ollamaClient.js";
-import { buildToolMap, connectAllClients, getAllTools } from "./toolRouter.js";
+import { buildToolMap, connectAllClients, getAllTools, closeAllClients } from "./toolRouter.js";
 
 async function main() {
   await connectAllClients();
@@ -94,7 +94,7 @@ async function main() {
   }
 }
 
-main().catch((err) => {
+main().finally(closeAllClients).catch((err) => {
   console.error("Fatal error in main():", err);
   process.exit(1);
 });

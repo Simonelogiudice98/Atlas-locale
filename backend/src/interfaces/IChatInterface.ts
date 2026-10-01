@@ -2,6 +2,8 @@ export interface ChatMessage {
   role:Role;
   content: string;
   name?: string;
+  tool_name?: string;
+  thinking?: string;
 }
 
 type Role = "user" | "assistant" | "system" | "tool"

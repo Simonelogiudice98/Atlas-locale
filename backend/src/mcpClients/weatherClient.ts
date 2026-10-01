@@ -8,8 +8,8 @@ const weatherClient = new Client({
 });
 
 const transport = new StdioClientTransport({
-  command: "npx",
-  args: ["tsx", "src/mcpServers/weatherServer.ts"],
+  command: process.execPath,
+  args: ["--import", "tsx", "src/mcpServers/weatherServer.ts"],
 
   // Versione "finale" da usare dopo il build (tsc), quando il server
   // sarà stabile — vedi punto 5 delle specifiche (perfezionamento successivo):
@@ -25,10 +25,13 @@ export async function getWeatherTools(): Promise<Tool[]> {
   return (await weatherClient.listTools()).tools;
 }
 
-export async function runWeatherTools(name: string, args: Record<string, unknown>) {
+export async function runWeatherTools(name: string, args: Record<string, unknown>, signal?: AbortSignal) {
   return await weatherClient.callTool({
     name: name,
     arguments:args
-  });
+  }, undefined, { signal, timeout: 30000 });
 }
+
+
+export async function closeweatherClient() { await weatherClient.close(); }
 

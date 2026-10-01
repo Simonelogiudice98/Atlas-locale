@@ -1,3 +1,5 @@
+import { closetimeClient } from './mcpClients/timeClient.js';
+import { closeweatherClient } from './mcpClients/weatherClient.js';
 import { Tool } from "@modelcontextprotocol/sdk/types.js";
 import {
   connectTimeClient,
@@ -41,3 +43,5 @@ export async function buildToolMap(): Promise<Record<string, RunToolFn>> {
 
   return toolMap;
 }
+
+export async function closeAllClients() { await Promise.allSettled([closetimeClient(), closeweatherClient()]); }

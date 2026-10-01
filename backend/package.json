@@ -3,10 +3,13 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-  "dev": "npx tsx src/index.ts",
-  "dev:time-server": "npx tsx src/mcpServers/timeServer.ts",
-  "test": "echo \"Error: no test specified\" && exit 1"
-},
+    "dev": "tsx src/server.ts",
+    "dev:time-server": "npx tsx src/mcpServers/timeServer.ts",
+    "test": "tsx --test tests/*.test.ts",
+    "dev:cli": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc"
+  },
   "type": "module",
   "keywords": [],
   "author": "",

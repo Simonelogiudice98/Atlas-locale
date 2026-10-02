@@ -3,7 +3,7 @@ import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 import { Tool } from "@modelcontextprotocol/sdk/types.js";
 
 const weatherClient = new Client({
-  name: "jarvis-weather-client",
+  name: "atlas-weather-client",
   version: "1.0.0",
 });
 

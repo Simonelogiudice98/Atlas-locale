@@ -1,8 +1,8 @@
-# Specifiche — Assistente Vocale Locale ("Jarvis")
+# Specifiche — Assistente Vocale Locale ("Atlas")
 
 ## 1. Obiettivo
 
-Costruire un assistente vocale locale, ispirato a Jarvis, usando esclusivamente modelli open-source eseguiti in locale (Ollama). Obiettivo primario: **apprendimento** — capire come si integrano LLM locali, tool/function calling, STT/TTS e orchestrazione in un sistema end-to-end. Non è richiesto un livello enterprise: un prototipo funzionante e comprensibile vale più di un sistema "perfetto" ma opaco.
+Costruire un assistente vocale locale, ispirato a Atlas, usando esclusivamente modelli open-source eseguiti in locale (Ollama). Obiettivo primario: **apprendimento** — capire come si integrano LLM locali, tool/function calling, STT/TTS e orchestrazione in un sistema end-to-end. Non è richiesto un livello enterprise: un prototipo funzionante e comprensibile vale più di un sistema "perfetto" ma opaco.
 
 ## 2. Modalità di lavoro (istruzioni per Claude in questo progetto)
 
@@ -25,7 +25,7 @@ Questo progetto è fatto **principalmente per imparare**, non solo per arrivare 
 ### In scope (v2 — dopo che v1 funziona)
 - STT (speech-to-text) per input vocale
 - TTS (text-to-speech) per output vocale
-- Wake word ("Hey Jarvis")
+- Wake word ("Hey Atlas")
 
 ### Fuori scope (per ora)
 - Multi-utente
@@ -148,7 +148,7 @@ Loop di tool-calling end-to-end funzionante: il modello riceve la lista dei tool
 - Dipendenze aggiunte: `@modelcontextprotocol/sdk` (v1.29.0), `zod`
 - Struttura aggiunta:
   - `src/mcpServers/timeServer.ts` — server MCP con tool `get_time` (nessun parametro, restituisce `new Date().toLocaleString()`, locale di sistema non hardcoded), trasporto stdio, log su `console.error` (stderr, per non sporcare il canale protocollo)
-  - `src/mcpClients/timeClient.ts` — client MCP dedicato (`jarvis-time-client`), lancia il server via `npx tsx` (con nota commentata per la versione "finale" post-build con `node dist/...`)
+  - `src/mcpClients/timeClient.ts` — client MCP dedicato (`atlas-time-client`), lancia il server via `npx tsx` (con nota commentata per la versione "finale" post-build con `node dist/...`)
 - Script npm aggiunti: `dev`, `dev:time-server`
 - Testato con successo sia via **MCP Inspector** sia via codice standalone — `get_time` risponde correttamente con data/ora corrente
 - Commit effettuato a fine di questo checkpoint (server + client MCP funzionanti, tool ancora chiamato manualmente/hardcoded, non ancora da Ollama)
@@ -189,7 +189,7 @@ Loop di tool-calling end-to-end funzionante: il modello riceve la lista dei tool
   - `runTimeTools` (esecuzione del tool) — narrowing di `error: unknown` con `instanceof Error` per accedere a `.message` in sicurezza
   - seconda chiamata a `chat()` (dopo l'esecuzione del tool)
   - Testato simulando un fallimento (`throw` temporaneo in `runTimeTools`): messaggio d'errore leggibile confermato, nessun crash
-- **Logging delle tool call (requisito di trasparenza, sezione 5)** — oggetto strutturato loggato su console per ogni tool call, sia in caso di successo (`status: "OK"`) che di fallimento (`status: "ERROR"`), con `timestamp` (`new Date().toISOString()`), `tool`, `args`, `result`. Scelta consapevole: solo console per ora, non su file — la persistenza su file JSON prevista in sezione 7 riguarda lo *stato* (es. promemoria in M3), non i log; introdurre la scrittura su file per i log è rimandato a quando Jarvis diventerà un processo persistente/conversazionale (v2), dove analizzare i log *dopo* l'esecuzione avrà più valore
+- **Logging delle tool call (requisito di trasparenza, sezione 5)** — oggetto strutturato loggato su console per ogni tool call, sia in caso di successo (`status: "OK"`) che di fallimento (`status: "ERROR"`), con `timestamp` (`new Date().toISOString()`), `tool`, `args`, `result`. Scelta consapevole: solo console per ora, non su file — la persistenza su file JSON prevista in sezione 7 riguarda lo *stato* (es. promemoria in M3), non i log; introdurre la scrittura su file per i log è rimandato a quando Atlas diventerà un processo persistente/conversazionale (v2), dove analizzare i log *dopo* l'esecuzione avrà più valore
 - **Commit effettuato** a fine sessione (loop tool-calling end-to-end + gestione errore + logging)
 - **Criteri di accettazione v1 (M1-M4, sezione 9): tutti soddisfatti** ✅, incluso "so spiegare a parole mie perché il modello ha chiamato quel tool" (discusso a voce: incrocio tra descrizione del tool esposta via MCP e riconoscimento da parte del modello che la propria conoscenza statica non basta a rispondere; comportamento appreso durante il training per il function calling, non hardcoded lato orchestratore)
 
@@ -219,7 +219,7 @@ Da sezione 8: aggiungere 2-3 tool reali (meteo, promemoria con persistenza su fi
   1. **Discovery**: schema esposto correttamente, parametro `city` visibile con la sua `.describe()`
   2. **Successo**: `city: "milano"` → flusso completo geocoding → forecast → dati plausibili restituiti
   3. **Errore gestito**: città inventata (`"Xyzabc123"`) → errore pulito "Città non trovata", nessun crash — a differenza di un tentativo con `city` vuoto, che viene bloccato prima ancora a livello di validazione dello schema Zod/MCP (`Invalid input: expected string, received undefined`), utile per capire la differenza tra errore di validazione input (a monte, non esegue il tool) ed errore applicativo (dentro il tool)
-- **`weatherClient.ts` scritto** da Simone, stesso pattern di `timeClient.ts`: `connectWeatherClient()`, `getWeatherTools()`, `runWeatherTools()`, client MCP dedicato `"jarvis-weather-client"`
+- **`weatherClient.ts` scritto** da Simone, stesso pattern di `timeClient.ts`: `connectWeatherClient()`, `getWeatherTools()`, `runWeatherTools()`, client MCP dedicato `"atlas-weather-client"`
 - **`toolRouter.ts` creato** — nuovo modulo con la responsabilità di orchestrare "quali client esistono" e "quale funzione usare dato il nome di un tool", separata dai singoli client MCP e da `index.ts`:
   - `type RunToolFn = typeof runTimeTools` — la forma della funzione (parametri + ritorno) usata per tipizzare il valore della mappa; scelto `typeof` (intera firma) invece di `ReturnType<typeof runTimeTools>` (solo il tipo di ritorno), perché il valore della mappa dev'essere la funzione stessa, chiamabile con `(name, args)`
   - `connectAllClients(): Promise<void>` — connette `timeClient` e `weatherClient` in parallelo con `Promise.all`. **Elenco client volutamente hardcoded**: la "dinamicità" di questa milestone riguarda il routing nome-tool → funzione (punto 2 del problema), non la scoperta automatica di quali client esistono nel progetto (punto 1, che resta una scelta esplicita dello sviluppatore) — distinzione chiarita esplicitamente in sessione. Una configurazione dinamica dei client (tipo file di config con path dei server MCP) è stata considerata ma giudicata over-engineering per lo scopo di apprendimento con 2-3 tool locali

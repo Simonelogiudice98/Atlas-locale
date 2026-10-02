@@ -20,7 +20,7 @@ async function main() {
     return { status: ollama === 'ready' ? 'ok' : 'degraded', ollama, model: config.model, tools: tools.map(x => x.function.name) };
   });
   server.requestTimeout = 15000;
-  server.listen(config.port, '127.0.0.1', () => console.log(`Jarvis API: http://127.0.0.1:${config.port}`));
+  server.listen(config.port, '127.0.0.1', () => console.log(`Atlas API: http://127.0.0.1:${config.port}`));
   let stopping = false;
   async function shutdown() {
     if (stopping) return; stopping = true;

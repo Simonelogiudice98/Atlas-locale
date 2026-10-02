@@ -1,4 +1,4 @@
-# Jarvis backend per frontend React / Next.js
+# Atlas backend per frontend React / Next.js
 
 Tutti i comandi di questa guida vanno eseguiti dalla cartella `backend`. Dalla root del repository entrare prima con `cd backend`. I percorsi `src`, `tests`, `.env` e gli eventuali dati dei tool sono relativi a questa cartella.
 

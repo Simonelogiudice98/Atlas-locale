@@ -3,7 +3,7 @@ import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 import { Tool } from "@modelcontextprotocol/sdk/types.js";
 
 const timeClient = new Client({
-  name: "jarvis-time-client",
+  name: "atlas-time-client",
   version: "1.0.0",
 });
 

@@ -10,9 +10,10 @@ import { useState } from "react";
 
 interface ChatComposerProps {
   onSend: (value: string) => void;
+  isLoading: boolean;
 }
 
-const ChatComposer = ({ onSend }: ChatComposerProps) => {
+const ChatComposer = ({ onSend,isLoading }: ChatComposerProps) => {
   const [textAreaValue, setTextAreaValue] = useState<string>("");
 
   const onValueChange = (value: string) => {
@@ -46,7 +47,7 @@ const ChatComposer = ({ onSend }: ChatComposerProps) => {
               size="sm"
               variant="default"
               type="submit"
-              disabled={textAreaValue.trim() === ""}
+              disabled={isLoading || textAreaValue.trim() === ""}
             >
               Invio
             </InputGroupButton>

@@ -10,3 +10,10 @@ export type ChatResponse = {
     content: string;
   };
 };
+
+export type ChatErrorResponse = {
+  error:{
+    code:string;
+    message:string;
+  }
+}

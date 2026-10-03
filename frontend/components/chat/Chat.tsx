@@ -1,42 +1,18 @@
 "use client";
-import { useAtom } from "jotai";
 import ChatComposer from "./chat-composer/ChatComposer";
 import MessageList from "./message-list/MessageList";
-import type { ChatResponse, Message } from "@/types/chat";
-import { messagesAtom } from "@/store/messagesAtom";
+import type { ChatErrorResponse, ChatResponse, Message } from "@/types/chat";
 import { useState } from "react";
 import { Alert, AlertDescription } from "../ui/alert";
 import { X } from "lucide-react";
-// import { randomUUID } from "crypto";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { messageAdded } from "@/store/chatSlice";
 
-// const mockMessages: Message[] = [
-//   {
-//     id: "mock-1",
-//     role: "user",
-//     content: "Ciao! Mi aiuti a capire come funziona questa chat?",
-//   },
-//   {
-//     id: "mock-2",
-//     role: "assistant",
-//     content:
-//       "Certo! Scrivi una domanda nel box in basso e premi Invia. La risposta apparirà nella conversazione.",
-//   },
-//   {
-//     id: "mock-3",
-//     role: "user",
-//     content:
-//       "Vorrei prepararmi a un colloquio frontend.\nDa quali argomenti posso iniziare?",
-//   },
-//   {
-//     id: "mock-4",
-//     role: "assistant",
-//     content:
-//       "Puoi iniziare da questi argomenti:\n\n1. Componenti React e passaggio delle props.\n2. Gestione dello stato locale e condiviso.\n3. Chiamate API, caricamento e gestione degli errori.\n\nQuesto progetto ti permette di esercitarti su tutti e tre. Quando la chat sarà collegata al backend, potrai aggiungere lo streaming e la cancellazione delle richieste per approfondire la gestione delle operazioni asincrone.",
-//   },
-// ];
 
 const Chat = () => {
-  const [messages, setMessages] = useAtom(messagesAtom);
+  // const [messages, setMessages] = useAtom(messagesAtom);
+  const messages = useAppSelector((state) => state.chat.messages);
+  const dispatch = useAppDispatch();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -53,8 +29,7 @@ const Chat = () => {
     };
 
     const updatedMessages = [...messages, newMessage];
-
-    setMessages(updatedMessages);
+    dispatch(messageAdded(newMessage))
 
     try {
       const response = await fetch("/api/chat", {
@@ -72,7 +47,19 @@ const Chat = () => {
       });
 
       if (!response.ok) {
-        throw new Error(`Errore HTTP ${response.status}`);
+        let errorMessage = `Errore HTTP ${response.status}`;
+
+        try {
+          const errorData: ChatErrorResponse | null = await response.json();
+
+          if (typeof errorData?.error?.message === "string" && errorData.error.message.trim()) {
+            errorMessage = errorData.error.message;
+          }
+        } catch {
+          // Se il body non è JSON, manteniamo il messaggio HTTP generico.
+        }
+
+        throw new Error(errorMessage);
       }
 
       const data: ChatResponse = await response.json();
@@ -83,7 +70,7 @@ const Chat = () => {
         content: data.message.content,
       };
 
-      setMessages((prevValue) => [...prevValue, assistantResponse]);
+      dispatch(messageAdded(assistantResponse))
     } catch (error) {
       setError(
         error instanceof Error

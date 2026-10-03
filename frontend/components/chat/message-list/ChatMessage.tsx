@@ -9,7 +9,7 @@ const ChatMessage = ({message}:IChatMessageProps) => {
 
   return (
     <Bubble align={message.role == 'user' ? "end" :"start" } variant={message.role == 'user' ? "default" :"secondary"}>
-        <BubbleContent>{message.content}</BubbleContent>
+        <BubbleContent className="whitespace-pre-wrap break-words text-sm leading-7">{message.content}</BubbleContent>
       </Bubble>
   );
   

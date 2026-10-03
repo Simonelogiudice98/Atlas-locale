@@ -7,7 +7,7 @@ import { Alert, AlertDescription } from "../ui/alert";
 import { X } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { messageAdded } from "@/store/chatSlice";
-
+import ChatHeader from "./chat-header/chatHeader";
 
 const Chat = () => {
   // const [messages, setMessages] = useAtom(messagesAtom);
@@ -17,7 +17,7 @@ const Chat = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const onSend = async (value: string) => {
-    if(isLoading) return
+    if (isLoading) return;
 
     setError(null);
     setIsLoading(true);
@@ -29,7 +29,7 @@ const Chat = () => {
     };
 
     const updatedMessages = [...messages, newMessage];
-    dispatch(messageAdded(newMessage))
+    dispatch(messageAdded(newMessage));
 
     try {
       const response = await fetch("/api/chat", {
@@ -52,7 +52,10 @@ const Chat = () => {
         try {
           const errorData: ChatErrorResponse | null = await response.json();
 
-          if (typeof errorData?.error?.message === "string" && errorData.error.message.trim()) {
+          if (
+            typeof errorData?.error?.message === "string" &&
+            errorData.error.message.trim()
+          ) {
             errorMessage = errorData.error.message;
           }
         } catch {
@@ -70,7 +73,7 @@ const Chat = () => {
         content: data.message.content,
       };
 
-      dispatch(messageAdded(assistantResponse))
+      dispatch(messageAdded(assistantResponse));
     } catch (error) {
       setError(
         error instanceof Error
@@ -83,23 +86,28 @@ const Chat = () => {
   };
 
   return (
-    <div className="flex flex-col h-dvh w-full max-w-3xl mx-auto px-4">
-      <MessageList messages={messages} isLoading={isLoading} />
+    <div className="h-dvh bg-background p-2 sm:p-4">
+      <div className="flex flex-col h-full w-full max-w-3xl mx-auto">
+        <ChatHeader />
+        <MessageList messages={messages} isLoading={isLoading} />
 
-      {error && (
-        <Alert variant="destructive">
-          <button
-          type="button"
-          onClick={() => setError(null)}
-          aria-label="chiudi il messaggio d'errore"
-          >
-            <X className="size-4" />
-          </button>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
+        <div className="flex flex-col gap-3">
+          {error && (
+            <Alert variant="destructive">
+              <button
+                type="button"
+                onClick={() => setError(null)}
+                aria-label="chiudi il messaggio d'errore"
+              >
+                <X className="size-4" />
+              </button>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
 
-      <ChatComposer onSend={onSend} isLoading={isLoading}/>
+          <ChatComposer onSend={onSend} isLoading={isLoading} />
+        </div>
+      </div>
     </div>
   );
 };

@@ -1,19 +1,23 @@
-# Atlas locale
+# Atlas — assistente AI locale
 
 Il progetto contiene il backend Node.js per un assistente Ollama locale. Il frontend React / Next.js è nella cartella `frontend`, accanto a `backend`.
 
 Il progetto nasce come esercizio per imparare a costruire un frontend per applicazioni AI, collegandolo a un modello locale senza API a pagamento.
 
+**Progetto di apprendimento in sviluppo**, pensato per essere eseguito sul proprio computer. Le risposte sono generate da Ollama; il tool meteo richiede Internet e invia la città richiesta a Open-Meteo.
+
+![Interfaccia iniziale della chat Atlas](assets/atlas-chat.png)
+
 ## Stato attuale
 
-- Chat con messaggi utente e assistente, gestiti con Jotai.
+- Chat con messaggi utente e assistente, gestiti con Redux Toolkit.
 - Invio della cronologia al backend tramite una Route Handler Next.js (BFF).
 - Risposta completa dell'assistente, senza streaming nel frontend.
 - Bolla temporanea con puntini animati durante la generazione e invio disabilitato durante l'attesa.
 - Banner di errore richiudibile.
 - Tool MCP per conoscere l'ora e il meteo.
 
-I messaggi restano in memoria: ricaricando la pagina si perde la conversazione. Il backend supporta già lo streaming SSE, ma la chat usa attualmente `stream: false`.
+I messaggi restano in memoria: ricaricando la pagina si perde la conversazione. Il backend supporta già lo streaming SSE, ma la chat usa attualmente `stream: false`. Il pulsante “Nuova chat” è presente ma non è ancora collegato a un'azione; Markdown e gestione di più conversazioni sono da implementare.
 
 ## Architettura
 
@@ -29,12 +33,14 @@ Il browser chiama il BFF sulla stessa origine. L'indirizzo del backend è config
 ```text
 Atlas-locale/
   backend/    # API Node.js, tool MCP, configurazione e test
-  frontend/   # Chat Next.js, stato Jotai e BFF
+  frontend/   # Chat Next.js, stato Redux Toolkit e BFF
 ```
 
 ## Avvio backend
 
 Prerequisiti: Node.js 22 o successivo, npm e Ollama con il modello indicato nella configurazione del backend. Consultare [backend/.env.example](backend/.env.example) per le variabili disponibili.
+
+Installare il modello predefinito con `ollama pull qwen3:14b`. Verificare di avere risorse sufficienti per eseguirlo, oppure configurare un altro modello che supporti i tool.
 
 Ollama deve essere in esecuzione. Se non è già avviato tramite l'app, aprire un terminale separato:
 
@@ -46,19 +52,21 @@ Eseguire dalla cartella principale:
 
 ```sh
 cd backend
+npm ci
 npm run dev
 ```
 
 L'API ascolta su `http://127.0.0.1:3001`. Avviare Ollama separatamente per generare risposte. Per la versione terminale usare `npm run dev:cli` dalla cartella `backend`.
 
-Le dipendenze esistenti sono state spostate insieme al backend. Per un nuovo checkout, installarle con `npm ci` nella cartella `backend`.
+Per personalizzare la configurazione, copiare `backend/.env.example` in `backend/.env` prima dell'avvio. Senza questo file, il backend usa i valori predefiniti dell'esempio.
 
 ## Frontend
 
-Aprire un altro terminale nella cartella principale `Atlas-locale` e avviare il frontend:
+Prima dell'avvio, copiare `frontend/.env.example` in `frontend/.env.local`: la variabile `BACKEND_URL` è necessaria per collegarsi al backend. Aprire un altro terminale nella cartella principale `Atlas-locale` e avviare il frontend:
 
 ```sh
 cd frontend
+npm ci
 npm run dev
 ```
 
@@ -80,9 +88,27 @@ npm test
 npm run build
 ```
 
+Controlli frontend, dalla cartella `frontend`:
+
+```sh
+npm run lint
+npm run build
+```
+
+## Dati e uso locale
+
+L'API backend ascolta sul loopback e non ha autenticazione: è pensata per uso locale, non per essere esposta su Internet. Rendere pubblico il codice non richiede di pubblicare un'istanza dell'applicazione.
+
+Non aggiungere a Git credenziali, conversazioni o dati personali. Il server sperimentale dei promemoria salva in `backend/data/reminders.json`; questa cartella è esclusa dal repository. I promemoria non sono collegati alla chat web attuale.
+
+## Licenza
+
+Il codice originale di Atlas è distribuito con licenza [ISC](LICENSE). Le dipendenze e il modello Ollama utilizzato mantengono le rispettive licenze.
+
 ## Prossimi passi
 
 - Streaming delle risposte nella chat.
+- Collegare il pulsante “Nuova chat” all'azzeramento della conversazione.
 - Pulsante Stop per annullare la generazione.
 - Riprova dopo un errore senza duplicare il messaggio utente.
 - Rendering Markdown e blocchi di codice.

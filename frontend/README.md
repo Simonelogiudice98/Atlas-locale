@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Atlas frontend
 
-## Getting Started
+Interfaccia chat di Atlas, un progetto di apprendimento per collegare un'applicazione AI a un modello Ollama locale.
 
-First, run the development server:
+## Avvio
+
+Prerequisiti: Node.js 22 o successivo, npm e il backend Atlas sulla porta 3001. Per configurare Ollama e il backend, consultare il [README principale](../README.md).
+
+Dalla cartella `frontend`, installare le dipendenze con `npm ci`. Copiare `.env.example` in `.env.local`, con questo contenuto:
+
+```dotenv
+BACKEND_URL=http://127.0.0.1:3001
+```
+
+Avviare il frontend:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Aprire [http://localhost:3000](http://localhost:3000). Riavviare dopo aver modificato `.env.local`; non aggiungere questo file a Git.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Funzionamento
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Next.js App Router e React per l'interfaccia; Tailwind CSS e componenti shadcn/ui per lo stile.
+- Redux Toolkit per i messaggi, conservati in memoria e persi al ricaricamento.
+- `POST /api/chat` inoltra la conversazione al backend usando `BACKEND_URL` sul server. Il browser non chiama direttamente Ollama.
+- La chat richiede la risposta completa (`stream: false`), mostra un indicatore di attesa e gestisce gli errori con un banner richiudibile.
 
-## Learn More
+Streaming, annullamento, rendering Markdown, persistenza e azione del pulsante “Nuova chat” non sono ancora implementati.
 
-To learn more about Next.js, take a look at the following resources:
+## Verifica
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```sh
+npm run lint
+npm run build
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+La compilazione usa `next/font/google` e può richiedere Internet per scaricare Geist. Il frontend da solo permette di vedere l'interfaccia; per ricevere risposte servono backend e Ollama.

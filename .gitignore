@@ -7,3 +7,20 @@ next-env.d.ts
 out/
 .env.*
 !.env.example
+
+# Dati personali del tool promemoria
+/backend/data/
+/data/
+
+# Log e file generati
+*.log
+*.tsbuildinfo
+coverage/
+.DS_Store
+Thumbs.db
+
+# Credenziali e configurazioni di servizi
+*.pem
+*.key
+.vercel/
+.aws/

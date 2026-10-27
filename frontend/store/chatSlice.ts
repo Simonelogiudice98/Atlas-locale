@@ -13,6 +13,9 @@ const chatSlice = createSlice({
     name:"chatReducer",
     initialState,
     reducers:{
+        messagesReplaced(state, action:PayloadAction<Message[]>){
+            state.messages = action.payload;
+        },
         messageAdded(state, action:PayloadAction<Message>){
             state.messages.push(action.payload);
         },
@@ -23,5 +26,5 @@ const chatSlice = createSlice({
     }
 })
 
-export const {messageAdded, messageUpdated} = chatSlice.actions;
+export const {messageAdded, messageUpdated, messagesReplaced} = chatSlice.actions;
 export default chatSlice.reducer;

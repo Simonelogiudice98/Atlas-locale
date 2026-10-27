@@ -61,6 +61,6 @@ Domanda e risposta vengono salvate insieme in una transazione, dopo una generazi
 
 Una generazione per conversazione alla volta: invii concorrenti e cancellazione della conversazione durante la generazione restituiscono HTTP 409 (`CONVERSATION_BUSY`). Conversazioni diverse possono generare contemporaneamente. ID validi ma inesistenti restituiscono HTTP 404; body, ID e paginazione non validi HTTP 400.
 
-La vecchia `POST /api/chat` resta senza persistenza e mantiene il contratto esistente. **Il frontend attuale usa ancora questa rotta**: per salvare le chat dovrà essere collegato alle nuove API.
+La vecchia `POST /api/chat` resta senza persistenza e mantiene il contratto esistente. Il frontend usa le API conversazioni per salvare e riaprire le chat dalla sidebar.
 
 Per fare un backup, arrestare il backend e copiare `data/atlas.db`. Non copiare soltanto il file principale mentre il backend scrive in modalità WAL.

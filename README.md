@@ -11,20 +11,20 @@ Il progetto nasce come esercizio per imparare a costruire un frontend per applic
 ## Stato attuale
 
 - Chat con messaggi utente e assistente, gestiti con Redux Toolkit.
-- Invio della cronologia al backend tramite una Route Handler Next.js (BFF).
+- Cronologia salvata in SQLite, con sidebar responsive per creare, riaprire ed eliminare conversazioni.
 - Risposta dell'assistente in streaming, aggiornata progressivamente nella chat.
 - Bolla temporanea con puntini animati durante la generazione e invio disabilitato durante l'attesa.
 - Banner di errore richiudibile.
 - Tool MCP per conoscere l'ora e il meteo.
 
-Nel frontend attuale i messaggi restano in memoria: ricaricando la pagina si perde la conversazione. Il backend offre già API separate per salvare conversazioni e messaggi in SQLite, ancora da collegare alla chat web. La chat usa lo streaming SSE del backend tramite il BFF Next.js. Il pulsante “Nuova chat” è presente ma non è ancora collegato a un'azione; Markdown e gestione di più conversazioni sono da implementare.
+La chat usa le API conversazioni del backend tramite il BFF Next.js. Le conversazioni possono essere riaperte dalla sidebar dopo un refresh; ogni turno viene salvato al completamento della risposta. Il titolo deriva dalla prima domanda. Markdown e annullamento della generazione sono ancora da implementare.
 
 ## Architettura
 
 ```text
 Browser / chat Next.js (:3000)
-  → POST /api/chat sul BFF Next.js
-  → POST /api/chat sul backend Node.js (:3001)
+  → /api/conversations sul BFF Next.js
+  → /api/conversations sul backend Node.js (:3001) → SQLite
   → Ollama e tool MCP
 ```
 
@@ -107,10 +107,7 @@ Il codice originale di Atlas è distribuito con licenza [ISC](LICENSE). Le dipen
 
 ## Prossimi passi
 
-- Collegare il pulsante “Nuova chat” all'azzeramento della conversazione.
 - Pulsante Stop per annullare la generazione.
-- Riprova dopo un errore senza duplicare il messaggio utente.
 - Rendering Markdown e blocchi di codice.
-- Collegare il frontend alle API SQLite per la cronologia di più conversazioni.
 
 Il contratto API e le istruzioni dettagliate sono in [backend/README.md](backend/README.md). Le specifiche precedenti sono conservate in [backend/specifiche-atlas-locale.md](backend/specifiche-atlas-locale.md); i loro percorsi si riferiscono alla cartella backend.

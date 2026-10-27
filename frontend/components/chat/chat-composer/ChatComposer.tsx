@@ -50,6 +50,9 @@ const ChatComposer = ({ onSend, isLoading }: ChatComposerProps) => {
             data-slot="input-group-control"
             className="flex field-sizing-content placeholder:text-muted-foreground min-h-10 w-full resize-none rounded-md bg-transparent px-3 py-2.5 text-base transition-[color,box-shadow] outline-none md:text-sm"
             value={textAreaValue}
+            aria-label="Messaggio per Atlas"
+            maxLength={32000}
+            disabled={isLoading}
             onChange={(event) => onValueChange(event.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Chiedi qualcosa..."

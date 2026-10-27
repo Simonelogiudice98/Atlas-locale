@@ -2,6 +2,7 @@ import { type Message } from "@/types/chat";
 import ChatMessage from "./ChatMessage";
 import { Bubble, BubbleContent } from "@/components/ui/bubble";
 import { Compass } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 interface MessageListProps {
   messages: Message[];
@@ -9,8 +10,16 @@ interface MessageListProps {
 }
 
 const MessageList = ({ messages, isLoading }: MessageListProps) => {
+  const viewport = useRef<HTMLDivElement>(null);
+  const follow = useRef(true);
+  useEffect(() => {
+    if (follow.current && viewport.current) viewport.current.scrollTop = viewport.current.scrollHeight;
+  }, [messages, isLoading]);
   return (
-    <div className="flex-1 flex flex-col min-h-0 overflow-y-auto gap-6 py-8 px-4 sm:px-6">
+    <div ref={viewport} onScroll={() => {
+      const element = viewport.current;
+      if (element) follow.current = element.scrollHeight - element.scrollTop - element.clientHeight < 80;
+    }} className="flex-1 flex flex-col min-h-0 overflow-y-auto gap-6 py-8 px-4 sm:px-6">
       {messages.length === 0 && !isLoading && (
           <div className="flex-1 flex flex-col items-center justify-center px-4 text-center">
               <Compass className="size-8 text-[#C3A574]" aria-hidden="true"/>

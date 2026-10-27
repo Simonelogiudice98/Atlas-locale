@@ -11,6 +11,7 @@ export const config = {
   baseUrl: (process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434').replace(/\/$/, ''),
   model: process.env.OLLAMA_MODEL || 'qwen3:14b',
   port: positive('PORT', 3001),
+  databasePath: process.env.DATABASE_PATH || 'data/atlas.db',
   timeoutMs: positive('CHAT_TIMEOUT_MS', 120000),
   origins: (process.env.CORS_ORIGINS || 'http://localhost:3000,http://127.0.0.1:3000').split(',').map(x => x.trim()),
 };

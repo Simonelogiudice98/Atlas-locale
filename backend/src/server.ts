@@ -1,6 +1,7 @@
 import { config } from './config.js';
 import { createAssistant } from './assistant.js';
 import { createApiServer } from './httpServer.js';
+import { ConversationStore } from './conversationStore.js';
 import { convertToOllama } from './mcpToOllamaAdapter.js';
 import { connectAllClients, buildToolMap, getAllTools, closeAllClients } from './toolRouter.js';
 
@@ -8,6 +9,7 @@ async function main() {
   await connectAllClients();
   const tools = convertToOllama(await getAllTools());
   const assistant = createAssistant(tools, await buildToolMap());
+  const store = new ConversationStore(config.databasePath);
   const server = createApiServer(assistant, async () => {
     let ollama = 'unavailable';
     try {
@@ -18,7 +20,8 @@ async function main() {
       }
     } catch { /* Health remains available while Ollama is offline. */ }
     return { status: ollama === 'ready' ? 'ok' : 'degraded', ollama, model: config.model, tools: tools.map(x => x.function.name) };
-  });
+  }, store);
+  server.once('close', () => store.close());
   server.requestTimeout = 15000;
   server.listen(config.port, '127.0.0.1', () => console.log(`Atlas API: http://127.0.0.1:${config.port}`));
   let stopping = false;

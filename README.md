@@ -17,7 +17,7 @@ Il progetto nasce come esercizio per imparare a costruire un frontend per applic
 - Banner di errore richiudibile.
 - Tool MCP per conoscere l'ora e il meteo.
 
-I messaggi restano in memoria: ricaricando la pagina si perde la conversazione. La chat usa lo streaming SSE del backend tramite il BFF Next.js. Il pulsante “Nuova chat” è presente ma non è ancora collegato a un'azione; Markdown e gestione di più conversazioni sono da implementare.
+Nel frontend attuale i messaggi restano in memoria: ricaricando la pagina si perde la conversazione. Il backend offre già API separate per salvare conversazioni e messaggi in SQLite, ancora da collegare alla chat web. La chat usa lo streaming SSE del backend tramite il BFF Next.js. Il pulsante “Nuova chat” è presente ma non è ancora collegato a un'azione; Markdown e gestione di più conversazioni sono da implementare.
 
 ## Architettura
 
@@ -38,7 +38,7 @@ Atlas-locale/
 
 ## Avvio backend
 
-Prerequisiti: Node.js 22 o successivo, npm e Ollama con il modello indicato nella configurazione del backend. Consultare [backend/.env.example](backend/.env.example) per le variabili disponibili.
+Prerequisiti: Node.js 22.13 o successivo, npm e Ollama con il modello indicato nella configurazione del backend. Consultare [backend/.env.example](backend/.env.example) per le variabili disponibili.
 
 Installare il modello predefinito con `ollama pull qwen3:14b`. Verificare di avere risorse sufficienti per eseguirlo, oppure configurare un altro modello che supporti i tool.
 
@@ -111,6 +111,6 @@ Il codice originale di Atlas è distribuito con licenza [ISC](LICENSE). Le dipen
 - Pulsante Stop per annullare la generazione.
 - Riprova dopo un errore senza duplicare il messaggio utente.
 - Rendering Markdown e blocchi di codice.
-- Cronologia di più conversazioni con persistenza locale.
+- Collegare il frontend alle API SQLite per la cronologia di più conversazioni.
 
 Il contratto API e le istruzioni dettagliate sono in [backend/README.md](backend/README.md). Le specifiche precedenti sono conservate in [backend/specifiche-atlas-locale.md](backend/specifiche-atlas-locale.md); i loro percorsi si riferiscono alla cartella backend.

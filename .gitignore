@@ -11,6 +11,9 @@ out/
 # Dati personali del tool promemoria
 /backend/data/
 /data/
+*.db
+*.db-wal
+*.db-shm
 
 # Log e file generati
 *.log

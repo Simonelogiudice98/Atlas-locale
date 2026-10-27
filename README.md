@@ -12,12 +12,12 @@ Il progetto nasce come esercizio per imparare a costruire un frontend per applic
 
 - Chat con messaggi utente e assistente, gestiti con Redux Toolkit.
 - Invio della cronologia al backend tramite una Route Handler Next.js (BFF).
-- Risposta completa dell'assistente, senza streaming nel frontend.
+- Risposta dell'assistente in streaming, aggiornata progressivamente nella chat.
 - Bolla temporanea con puntini animati durante la generazione e invio disabilitato durante l'attesa.
 - Banner di errore richiudibile.
 - Tool MCP per conoscere l'ora e il meteo.
 
-I messaggi restano in memoria: ricaricando la pagina si perde la conversazione. Il backend supporta già lo streaming SSE, ma la chat usa attualmente `stream: false`. Il pulsante “Nuova chat” è presente ma non è ancora collegato a un'azione; Markdown e gestione di più conversazioni sono da implementare.
+I messaggi restano in memoria: ricaricando la pagina si perde la conversazione. La chat usa lo streaming SSE del backend tramite il BFF Next.js. Il pulsante “Nuova chat” è presente ma non è ancora collegato a un'azione; Markdown e gestione di più conversazioni sono da implementare.
 
 ## Architettura
 
@@ -107,7 +107,6 @@ Il codice originale di Atlas è distribuito con licenza [ISC](LICENSE). Le dipen
 
 ## Prossimi passi
 
-- Streaming delle risposte nella chat.
 - Collegare il pulsante “Nuova chat” all'azzeramento della conversazione.
 - Pulsante Stop per annullare la generazione.
 - Riprova dopo un errore senza duplicare il messaggio utente.

@@ -15,9 +15,13 @@ const chatSlice = createSlice({
     reducers:{
         messageAdded(state, action:PayloadAction<Message>){
             state.messages.push(action.payload);
+        },
+        messageUpdated(state, action:PayloadAction<{id:string; content:string}>){
+            const message = state.messages.find(message => message.id === action.payload.id);
+            if (message) message.content = action.payload.content;
         }
     }
 })
 
-export const {messageAdded} = chatSlice.actions;
-export default chatSlice.reducer; 
+export const {messageAdded, messageUpdated} = chatSlice.actions;
+export default chatSlice.reducer;

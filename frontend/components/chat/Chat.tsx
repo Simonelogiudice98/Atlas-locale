@@ -1,26 +1,28 @@
 "use client";
 import ChatComposer from "./chat-composer/ChatComposer";
 import MessageList from "./message-list/MessageList";
-import type { ChatErrorResponse, ChatResponse, Message } from "@/types/chat";
+import type { ChatErrorResponse, Message } from "@/types/chat";
+import { readChatStream } from "@/lib/chat-stream";
 import { useState } from "react";
 import { Alert, AlertDescription } from "../ui/alert";
 import { X } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { messageAdded } from "@/store/chatSlice";
+import { messageAdded, messageUpdated } from "@/store/chatSlice";
 import ChatHeader from "./chat-header/chatHeader";
 
 const Chat = () => {
-  // const [messages, setMessages] = useAtom(messagesAtom);
   const messages = useAppSelector((state) => state.chat.messages);
   const dispatch = useAppDispatch();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [hasContent, setHasContent] = useState(false);
 
   const onSend = async (value: string) => {
     if (isLoading) return;
 
     setError(null);
     setIsLoading(true);
+    setHasContent(false);
 
     const newMessage: Message = {
       id: crypto.randomUUID(),
@@ -42,7 +44,7 @@ const Chat = () => {
               content: message.content,
             };
           }),
-          stream: false,
+          stream: true,
         }),
       });
 
@@ -65,15 +67,18 @@ const Chat = () => {
         throw new Error(errorMessage);
       }
 
-      const data: ChatResponse = await response.json();
-
-      const assistantResponse = {
-        id: crypto.randomUUID(),
-        role: data.message.role,
-        content: data.message.content,
-      };
-
-      dispatch(messageAdded(assistantResponse));
+      if (!response.body) throw new Error("Risposta del server senza stream.");
+      const id = crypto.randomUUID();
+      let added = false;
+      await readChatStream(response.body, (content) => {
+        if (!added) {
+          dispatch(messageAdded({ id, role: "assistant", content }));
+          added = true;
+          setHasContent(true);
+        } else {
+          dispatch(messageUpdated({ id, content }));
+        }
+      });
     } catch (error) {
       setError(
         error instanceof Error
@@ -89,7 +94,7 @@ const Chat = () => {
     <div className="h-dvh bg-background p-2 sm:p-4">
       <div className="flex flex-col h-full w-full max-w-3xl mx-auto">
         <ChatHeader />
-        <MessageList messages={messages} isLoading={isLoading} />
+        <MessageList messages={messages} isLoading={isLoading && !hasContent} />
 
         <div className="flex flex-col gap-3">
           {error && (

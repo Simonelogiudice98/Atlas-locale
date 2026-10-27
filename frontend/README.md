@@ -25,7 +25,7 @@ Aprire [http://localhost:3000](http://localhost:3000). Riavviare dopo aver modif
 - Next.js App Router e React per l'interfaccia; Tailwind CSS e componenti shadcn/ui per lo stile.
 - Redux Toolkit per i messaggi, conservati in memoria e persi al ricaricamento.
 - `POST /api/chat` inoltra la conversazione al backend usando `BACKEND_URL` sul server. Il browser non chiama direttamente Ollama.
-- La chat richiede la risposta completa (`stream: false`), mostra un indicatore di attesa e gestisce gli errori con un banner richiudibile.
+- La chat richiede lo streaming SSE (`stream: true`), mostra un indicatore fino al primo testo e aggiorna progressivamente la risposta. Gli errori compaiono in un banner richiudibile; se lo stream si interrompe, il testo già ricevuto resta visibile.
 
 Streaming, annullamento, rendering Markdown, persistenza e azione del pulsante “Nuova chat” non sono ancora implementati.
 

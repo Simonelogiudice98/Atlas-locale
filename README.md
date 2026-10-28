@@ -2,6 +2,8 @@
 
 Il progetto contiene il backend Node.js per un assistente Ollama locale. Il frontend React / Next.js è nella cartella `frontend`, accanto a `backend`.
 
+Per avviare frontend e backend insieme, vedere [Avvio con Docker Compose](#avvio-con-docker-compose).
+
 Il progetto nasce come esercizio per imparare a costruire un frontend per applicazioni AI, collegandolo a un modello locale senza API a pagamento.
 
 **Progetto di apprendimento in sviluppo**, pensato per essere eseguito sul proprio computer. Le risposte sono generate da Ollama; il tool meteo richiede Internet e invia la città richiesta a Open-Meteo.
@@ -111,3 +113,54 @@ Il codice originale di Atlas è distribuito con licenza [ISC](LICENSE). Le dipen
 - Rendering Markdown e blocchi di codice.
 
 Il contratto API e le istruzioni dettagliate sono in [backend/README.md](backend/README.md). Le specifiche precedenti sono conservate in [backend/specifiche-atlas-locale.md](backend/specifiche-atlas-locale.md); i loro percorsi si riferiscono alla cartella backend.
+
+## Avvio con Docker Compose
+
+Docker Desktop deve essere avviato in modalità container Linux. Dalla root del repository:
+
+```sh
+docker compose up --build
+```
+
+Aprire [http://localhost:3000](http://localhost:3000). Per avviare in background usare `docker compose up --build -d`; per arrestare frontend e backend usare `docker compose down`. L'avvio attende il controllo di salute del backend. Questo controllo conferma che l'API risponde; Ollama può risultare `unavailable` o `model_missing` senza impedire di aprire l'interfaccia e la cronologia.
+
+Compose avvia **frontend e backend**; Ollama resta sul PC, con il modello già installato e l'accelerazione configurata. Avviare Ollama prima di fare domande. Non occorre eseguire `npm ci` sul PC né creare i file `.env` nelle cartelle frontend/backend.
+
+- Frontend: unica porta pubblicata, `127.0.0.1:3000`.
+- Backend: raggiungibile dal frontend come `http://backend:3001`, senza pubblicare la porta sul PC. `HOST=0.0.0.0` è impostato solo nel container; l'avvio Node locale mantiene `127.0.0.1` come default.
+- Ollama: raggiunto dal backend tramite `http://host.docker.internal:11434`. Il mapping `host-gateway` supporta anche Docker Engine Linux, dove Ollama deve ascoltare su un'interfaccia raggiungibile dal bridge.
+- SQLite: `/app/data/atlas.db`, nel volume Docker `atlas-data`. Il volume mantiene le chat dopo `down`, riavvii e ricostruzioni delle immagini. Il file `backend/data/atlas.db` dell'avvio locale non viene importato automaticamente: i due ambienti hanno dati separati.
+- I container eseguono build di produzione come utente `node`, senza dipendenze di sviluppo a runtime. I tool MCP vengono avviati dal JavaScript compilato.
+
+### Personalizzazione e Ollama
+
+Le opzioni sono in [.env.example](.env.example). Per cambiarle, copiarlo in `.env` **nella root**; Compose lo legge automaticamente. Per esempio, `FRONTEND_PORT=3002` evita un conflitto con un frontend già avviato. I file `.env` nelle cartelle applicative non vengono caricati nei container.
+
+Se Ollama non è raggiungibile dal container, controllare che accetti connessioni dall'interfaccia Docker. Ollama usa normalmente `127.0.0.1:11434`; la variabile `OLLAMA_HOST` controlla l'indirizzo di ascolto. Su Windows modificare la variabile d'ambiente e riavviare l'app Ollama; per un avvio manuale PowerShell, dopo aver chiuso l'app:
+
+```powershell
+$env:OLLAMA_HOST = '0.0.0.0:11434'
+ollama serve
+```
+
+Questa impostazione allarga l'ascolto di Ollama: limitare tramite firewall l'accesso alle reti necessarie. L'URL usato da Atlas si configura separatamente con `OLLAMA_BASE_URL` nel `.env` della root. Indicazioni ufficiali: [configurazione Ollama](https://docs.ollama.com/faq).
+
+### Dati e diagnostica
+
+```sh
+docker compose ps
+docker compose logs -f backend frontend
+docker compose exec backend node -e "fetch('http://127.0.0.1:3001/api/health').then(r=>r.json()).then(console.log)"
+```
+
+`docker compose down` conserva le conversazioni; **`docker compose down -v` elimina anche il volume e tutte le chat Docker**. Per copiare il database a backend fermo:
+
+```sh
+docker compose stop backend
+docker compose cp backend:/app/data/atlas.db ./atlas-backup.db
+docker compose start backend
+```
+
+La prima build richiede Internet per le immagini Node, le dipendenze npm e i font Google. Le modifiche al codice richiedono `docker compose up --build`; non è una configurazione con hot reload. La comunicazione fra servizi usa la rete Compose: [documentazione Docker](https://docs.docker.com/compose/how-tos/networking/).
+
+Verifiche Docker eseguite: build di entrambe le immagini, healthcheck, tool MCP compilati, flusso browser → Next.js → backend → Ollama simulato, streaming e persistenza SQLite dopo ricreazione dei container. L'Ollama reale sul PC non era raggiungibile durante la verifica.

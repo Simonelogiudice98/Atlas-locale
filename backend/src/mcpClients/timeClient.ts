@@ -1,5 +1,5 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import { serverTransport } from "./serverTransport.js";
 import { Tool } from "@modelcontextprotocol/sdk/types.js";
 
 const timeClient = new Client({
@@ -7,15 +7,7 @@ const timeClient = new Client({
   version: "1.0.0",
 });
 
-const transport = new StdioClientTransport({
-  command: process.execPath,
-  args: ["--import", "tsx", "src/mcpServers/timeServer.ts"],
-
-  // Versione "finale" da usare dopo il build (tsc), quando il server
-  // sarà stabile — vedi punto 5 delle specifiche (perfezionamento successivo):
-  // command: "node",
-  // args: ["dist/mcpServers/timeServer.js"],
-});
+const transport = serverTransport('time');
 
 export async function connectTimeClient(): Promise<void> {
   await timeClient.connect(transport);

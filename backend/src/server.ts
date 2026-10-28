@@ -23,7 +23,7 @@ async function main() {
   }, store);
   server.once('close', () => store.close());
   server.requestTimeout = 15000;
-  server.listen(config.port, '127.0.0.1', () => console.log(`Atlas API: http://127.0.0.1:${config.port}`));
+  server.listen(config.port, config.host, () => console.log(`Atlas API: http://${config.host}:${config.port}`));
   let stopping = false;
   async function shutdown() {
     if (stopping) return; stopping = true;

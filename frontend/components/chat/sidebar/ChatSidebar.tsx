@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Compass, MessageSquare, Plus, Trash2, X } from "lucide-react";
+import { MessageSquare, Plus, Trash2, X } from "lucide-react";
+import AtlasLogo from "@/components/AtlasLogo";
 import { Button } from "@/components/ui/button";
 import type { Conversation } from "@/types/chat";
 
@@ -44,7 +45,7 @@ export default function ChatSidebar(props: Props) {
       <div className="px-4 pt-6 pb-5">
         <div className="mb-6 flex items-center justify-between px-2">
           <div className="flex items-center gap-2.5">
-            <Compass className="size-6 text-[#C3A574]" aria-hidden="true" />
+            <AtlasLogo size={36} />
             <span className="text-lg font-semibold tracking-tight">Atlas</span>
           </div>
           <Button variant="ghost" size="icon" className="md:hidden" onClick={onClose} aria-label="Chiudi cronologia"><X /></Button>

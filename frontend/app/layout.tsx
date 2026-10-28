@@ -16,6 +16,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Atlas",
   description: "Atlas, il tuo assistente AI locale.",
+  icons: {
+    icon: { url: "/atlas-logo.png", type: "image/png" },
+    apple: "/atlas-logo.png",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
